@@ -22,7 +22,7 @@ services:
             
     grafana:
         image: grafana/grafana:latest
-        user: "1000"
+        user: "${USER_ID}"
         volumes:
             - ./data/grafana:/var/lib/grafana
         ports:

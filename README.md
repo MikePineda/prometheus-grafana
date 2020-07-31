@@ -19,6 +19,10 @@ Este es un docker-compose que te instala los siguientes servicios/imagenes:
 
 Todos los exporters son opcionales, son los que llegué a necesitar en mi caso, se pueden eliminar o agregar más dependiendo de sus necesidades.
 
+# Correr las instancias
+
+  USER_ID=$(id -u) docker-compose up -d
+
 # Configuración extra
 
 * Apache: Permitir conexión a http://localhost/server-status?auto. Puedes definirlo en otro puerto si gustas pero es necesario poder acceder a esta información para el apache-exporter
