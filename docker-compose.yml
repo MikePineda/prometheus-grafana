@@ -1,0 +1,69 @@
+# docker-compose.yml
+version: '3'
+services:
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: prometheus
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--web.route-prefix=/'
+            - '--storage.tsdb.retention.time=200h'
+            - '--web.enable-lifecycle'
+        ports:
+            - '9090:9090'
+        restart: unless-stopped
+        depends_on:
+            - cadvisor
+            - node-exporter
+            - apache-exporter
+            
+    grafana:
+        image: grafana/grafana:latest
+        user: "1000"
+        volumes:
+            - ./data/grafana:/var/lib/grafana
+        ports:
+            - '3000:3000'
+        depends_on:
+            - prometheus
+            
+    cadvisor:
+        image: gcr.io/google-containers/cadvisor:latest
+        container_name: cadvisor
+        ports:
+            - 8080:8080
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:rw
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+        depends_on:
+            - redis
+    redis:
+        image: redis:latest
+        container_name: redis
+        ports:
+            - 6379:6379
+           
+    node-exporter:
+        image: prom/node-exporter
+        ports:
+            - '9100:9100'
+            
+    docker-host:
+        image: qoomon/docker-host
+        cap_add: [ 'NET_ADMIN', 'NET_RAW' ]
+        restart: on-failure
+        
+    apache-exporter:
+        image: solsson/prometheus-exporter-apache
+        ports:
+            - '9117:9117'
+        command:
+            - '--scrape_uri=http://docker-host/server-status?auto'
+        depends_on:
+            - docker-host
+

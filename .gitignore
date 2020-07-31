@@ -1,0 +1,4 @@
+#ignore volume data
+data
+prometheus_db
+alert.rules
